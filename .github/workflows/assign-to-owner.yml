@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: MIT
+
+# Reusable workflow: assigns a newly opened/reopened issue or pull request to
+# the repository owner. Call it from a consumer repo with a thin stub that
+# supplies the trigger (see README.md).
+
+name: Assign to owner
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  assign:
+    name: Assign to owner
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Assign the issue or pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+          NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" = "issues" ]; then
+            gh issue edit "$NUMBER" --repo "$REPO" --add-assignee "$OWNER"
+          else
+            gh pr edit "$NUMBER" --repo "$REPO" --add-assignee "$OWNER"
+          fi
