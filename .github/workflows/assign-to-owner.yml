@@ -9,9 +9,6 @@ name: Assign to owner
 on:
   workflow_call:
 
-permissions:
-  contents: read
-
 jobs:
   assign:
     name: Assign to owner
